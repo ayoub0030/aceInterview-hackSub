@@ -9,7 +9,26 @@ import {
   Card,
   CardContent,
   Divider,
+  Chip,
+  IconButton,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import {
+  Download,
+  Print,
+  Share,
+  Visibility,
+  ExpandMore,
+  PictureAsPdf,
+  Description,
+} from "@mui/icons-material";
 import { RadarChart } from "@mui/x-charts/RadarChart";
 import { supabase } from "@/lib/supabase";
 import ProctoringSuspicionChart from "@/components/admin/ProctoringSuspicionChart";
@@ -26,6 +45,8 @@ interface AssessmentResult {
   tradeoff_analysis: number; // mapped from DB `trade_off_analysis`
   suspicion: number;
   summary: string;
+  strengths?: string[];
+  weaknesses?: string[];
   transcript?: string;
   diagram?: any;
   completed_at: string;
@@ -38,6 +59,10 @@ export default function OAResults() {
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showTranscript, setShowTranscript] = useState(false);
+  const [showDiagram, setShowDiagram] = useState(false);
+  const [diagramDialogOpen, setDiagramDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   // Disable overscroll on mount
   useEffect(() => {
@@ -112,6 +137,8 @@ export default function OAResults() {
             tradeoff_analysis: Number(data.trade_off_analysis ?? 0),
             suspicion: Number(data.suspicion ?? 0),
             summary: data.summary || "No summary available",
+            strengths: data.strengths || [],
+            weaknesses: data.weaknesses || [],
             transcript: data.transcript || "",
             diagram: data.diagram,
             completed_at: data.design_assessments?.ended_at ?? data.created_at,
@@ -136,6 +163,54 @@ export default function OAResults() {
 
     fetchAssessmentResults();
   }, [interviewId]);
+
+  // Utility functions
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return '#4caf50'; // Green
+    if (score >= 6) return '#ff9800'; // Orange
+    return '#f44336'; // Red
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 8) return 'Excellent';
+    if (score >= 6) return 'Good';
+    if (score >= 4) return 'Average';
+    return 'Needs Improvement';
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportPDF = () => {
+    // In a real implementation, you would use a library like jsPDF
+    alert('PDF export would be implemented here using jsPDF or similar library');
+  };
+
+  const handleExportExcel = () => {
+    // In a real implementation, you would use a library like xlsx
+    alert('Excel export would be implemented here using xlsx library');
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `Assessment Results for ${results?.applicant_email}`,
+      text: `Overall Score: ${overallScore}/10`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      alert('Results link copied to clipboard!');
+    }
+  };
 
   if (loading) {
     return (
@@ -185,6 +260,65 @@ export default function OAResults() {
       5
   );
 
+  // Action buttons component
+  const ActionButtons = () => (
+    <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
+      <Tooltip title="Print Results">
+        <IconButton
+          onClick={handlePrint}
+          sx={{
+            bgcolor: 'rgba(98, 0, 69, 0.8)',
+            color: 'white',
+            '&:hover': { bgcolor: 'rgba(98, 0, 69, 1)' },
+          }}
+        >
+          <Print />
+        </IconButton>
+      </Tooltip>
+      
+      <Tooltip title="Export Options">
+        <IconButton
+          onClick={() => setExportDialogOpen(true)}
+          sx={{
+            bgcolor: 'rgba(98, 0, 69, 0.8)',
+            color: 'white',
+            '&:hover': { bgcolor: 'rgba(98, 0, 69, 1)' },
+          }}
+        >
+          <Download />
+        </IconButton>
+      </Tooltip>
+      
+      <Tooltip title="Share Results">
+        <IconButton
+          onClick={handleShare}
+          sx={{
+            bgcolor: 'rgba(98, 0, 69, 0.8)',
+            color: 'white',
+            '&:hover': { bgcolor: 'rgba(98, 0, 69, 1)' },
+          }}
+        >
+          <Share />
+        </IconButton>
+      </Tooltip>
+      
+      {results.diagram && (
+        <Tooltip title="View Diagram">
+          <IconButton
+            onClick={() => setDiagramDialogOpen(true)}
+            sx={{
+              bgcolor: 'rgba(98, 0, 69, 0.8)',
+              color: 'white',
+              '&:hover': { bgcolor: 'rgba(98, 0, 69, 1)' },
+            }}
+          >
+            <Visibility />
+          </IconButton>
+        </Tooltip>
+      )}
+    </Box>
+  );
+
   return (
     <Box
       sx={{
@@ -229,6 +363,8 @@ export default function OAResults() {
           >
             ← Back to Dashboard
           </Button>
+
+          <ActionButtons />
 
           {!!error && (
             <Typography variant="body2" sx={{ color: "#ffb3c7", mb: 1 }}>
@@ -325,14 +461,80 @@ export default function OAResults() {
                     </Typography>
                     <Typography
                       variant="h2"
-                      sx={{ color: "rgba(98, 0, 69, 1)", fontWeight: 600 }}
+                      sx={{ color: getScoreColor(overallScore), fontWeight: 600 }}
                     >
                       {overallScore}/10
                     </Typography>
+                    <Chip
+                      label={getScoreLabel(overallScore)}
+                      sx={{
+                        mt: 1,
+                        bgcolor: getScoreColor(overallScore),
+                        color: 'white',
+                        fontWeight: 600,
+                      }}
+                    />
                   </CardContent>
                 </Card>
 
-                {/* Performance Breakdown */}
+                {/* Score Breakdown */}
+                <Card
+                  elevation={0}
+                  sx={{
+                    background:
+                      "linear-gradient(135deg, rgba(98, 0, 69, 0.4) 0%, rgba(50, 20, 40, 0.5) 100%)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(98, 0, 69, 0.3)",
+                    borderRadius: 2,
+                  }}
+                >
+                  <CardContent>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{ color: "white", fontWeight: 500 }}
+                    >
+                      Score Breakdown
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {[
+                        { label: 'Reliability', value: results.reliability },
+                        { label: 'Scalability', value: results.scalability },
+                        { label: 'Availability', value: results.availability },
+                        { label: 'Communication', value: results.communication },
+                        { label: 'Trade-off Analysis', value: results.tradeoff_analysis },
+                      ].map((item) => (
+                        <Box key={item.label}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                              {item.label}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: getScoreColor(item.value), fontWeight: 600 }}>
+                              {item.value}/10
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              height: 8,
+                              bgcolor: 'rgba(255,255,255,0.1)',
+                              borderRadius: 1,
+                              overflow: 'hidden',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                height: '100%',
+                                width: `${(item.value / 10) * 100}%`,
+                                bgcolor: getScoreColor(item.value),
+                                transition: 'width 0.5s ease',
+                              }}
+                            />
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  </CardContent>
+                </Card>
                 <Card
                   elevation={0}
                   sx={{
@@ -425,7 +627,61 @@ export default function OAResults() {
                   gap: 3,
                 }}
               >
-                {/* Summary */}
+                {/* Strengths & Weaknesses */}
+                <Card
+                  elevation={0}
+                  sx={{
+                    background:
+                      "linear-gradient(135deg, rgba(98, 0, 69, 0.4) 0%, rgba(50, 20, 40, 0.5) 100%)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(98, 0, 69, 0.3)",
+                    borderRadius: 2,
+                  }}
+                >
+                  <CardContent>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{ color: "white", fontWeight: 500 }}
+                    >
+                      Strengths & Weaknesses
+                    </Typography>
+                    
+                    {(results.strengths?.length > 0 || results.weaknesses?.length > 0) ? (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {results.strengths?.length > 0 && (
+                          <Box>
+                            <Typography variant="subtitle2" sx={{ color: '#4caf50', fontWeight: 600, mb: 1 }}>
+                              Strengths:
+                            </Typography>
+                            {results.strengths.map((strength: string, index: number) => (
+                              <Typography key={index} variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', ml: 2 }}>
+                                • {strength}
+                              </Typography>
+                            ))}
+                          </Box>
+                        )}
+                        
+                        {results.weaknesses?.length > 0 && (
+                          <Box>
+                            <Typography variant="subtitle2" sx={{ color: '#f44336', fontWeight: 600, mb: 1 }}>
+                              Areas for Improvement:
+                            </Typography>
+                            {results.weaknesses.map((weakness: string, index: number) => (
+                              <Typography key={index} variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', ml: 2 }}>
+                                • {weakness}
+                              </Typography>
+                            ))}
+                          </Box>
+                        )}
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                        No strengths or weaknesses data available
+                      </Typography>
+                    )}
+                  </CardContent>
+                </Card>
                 <Card
                   elevation={0}
                   sx={{
@@ -511,27 +767,18 @@ export default function OAResults() {
               </Box>
             </Box>
 
-            {/* Bottom: Transcript */}
-            {results.transcript && (
-              <Box>
-                <Card
-                  elevation={0}
-                  sx={{
-                    background:
-                      "linear-gradient(135deg, rgba(98, 0, 69, 0.4) 0%, rgba(50, 20, 40, 0.5) 100%)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(98, 0, 69, 0.3)",
-                    borderRadius: 2,
-                  }}
-                >
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      gutterBottom
-                      sx={{ color: "white", fontWeight: 500 }}
-                    >
-                      Interview Transcript
-                    </Typography>
+            {/* Bottom: Transcript and Diagram */}
+            <Box>
+              {/* Transcript Accordion */}
+              {results.transcript && (
+                <Accordion sx={{ bgcolor: 'rgba(98, 0, 69, 0.2)', '&:before': { display: 'none' } }}>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore sx={{ color: 'white' }} />}
+                    sx={{ color: 'white', fontWeight: 500 }}
+                  >
+                    Interview Transcript
+                  </AccordionSummary>
+                  <AccordionDetails>
                     <Paper
                       elevation={0}
                       sx={{
@@ -564,13 +811,105 @@ export default function OAResults() {
                         {results.transcript}
                       </Typography>
                     </Paper>
-                  </CardContent>
-                </Card>
-              </Box>
-            )}
+                  </AccordionDetails>
+                </Accordion>
+              )}
+            </Box>
           </Paper>
         </Container>
       </Box>
+
+      {/* Export Dialog */}
+      <Dialog open={exportDialogOpen} onClose={() => setExportDialogOpen(false)}>
+        <DialogTitle sx={{ bgcolor: 'rgba(98, 0, 69, 0.9)', color: 'white' }}>
+          Export Options
+        </DialogTitle>
+        <DialogContent sx={{ bgcolor: 'rgba(20, 20, 25, 0.95)', minWidth: 300 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+            <Button
+              variant="contained"
+              startIcon={<PictureAsPdf />}
+              onClick={handleExportPDF}
+              sx={{
+                bgcolor: 'rgba(98, 0, 69, 0.8)',
+                '&:hover': { bgcolor: 'rgba(98, 0, 69, 1)' },
+              }}
+            >
+              Export as PDF
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<Description />}
+              onClick={handleExportExcel}
+              sx={{
+                bgcolor: 'rgba(98, 0, 69, 0.8)',
+                '&:hover': { bgcolor: 'rgba(98, 0, 69, 1)' },
+              }}
+            >
+              Export as Excel
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ bgcolor: 'rgba(20, 20, 25, 0.95)' }}>
+          <Button onClick={() => setExportDialogOpen(false)} sx={{ color: 'white' }}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Diagram Viewer Dialog */}
+      <Dialog 
+        open={diagramDialogOpen} 
+        onClose={() => setDiagramDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ bgcolor: 'rgba(98, 0, 69, 0.9)', color: 'white' }}>
+          System Design Diagram
+        </DialogTitle>
+        <DialogContent sx={{ bgcolor: 'rgba(20, 20, 25, 0.95)' }}>
+          <Box sx={{ mt: 2, p: 2, bgcolor: 'rgba(0,0,0,0.4)', borderRadius: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+              {results.diagram ? JSON.stringify(results.diagram, null, 2) : 'No diagram data available'}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ bgcolor: 'rgba(20, 20, 25, 0.95)' }}>
+          <Button onClick={() => setDiagramDialogOpen(false)} sx={{ color: 'white' }}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
+
+// Mock data for fallback
+const mockResults: Record<string, AssessmentResult> = {
+  "assessment-1": {
+    id: "assessment-1",
+    applicant_email: "candidate@example.com",
+    problem_id: "problem-1",
+    reliability: 7,
+    scalability: 8,
+    availability: 6,
+    communication: 9,
+    tradeoff_analysis: 7,
+    suspicion: 15,
+    summary: "Candidate demonstrated strong understanding of system design principles with good communication skills. Showed solid approach to scalability and reliability, though could improve on availability considerations.",
+    strengths: [
+      "Excellent communication skills",
+      "Good understanding of scalability patterns",
+      "Solid approach to error handling",
+      "Clear explanation of trade-offs"
+    ],
+    weaknesses: [
+      "Limited discussion of availability patterns",
+      "Could explore more caching strategies",
+      "Missing consideration of edge cases"
+    ],
+    transcript: "Interview transcript would appear here...",
+    diagram: { nodes: [], edges: [] },
+    completed_at: new Date().toISOString(),
+  },
+};
