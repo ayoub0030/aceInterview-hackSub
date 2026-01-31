@@ -23,6 +23,8 @@ import NotificationCenter from "../../components/admin/NotificationCenter";
 import CandidateFeedback from "../../components/admin/CandidateFeedback";
 import AssessmentWorkflowAutomation from "../../components/admin/AssessmentWorkflowAutomation";
 import CandidateCommunicationCenter from "../../components/admin/CandidateCommunicationCenter";
+import AssessmentCalendar from "../../components/admin/AssessmentCalendar";
+import AssessmentPerformanceInsights from "../../components/admin/AssessmentPerformanceInsights";
 import { NotificationProvider } from "../../contexts/NotificationContext";
 import {
   DesignProblem,
@@ -254,10 +256,12 @@ export default function Dashboard() {
                 <Tab label="Problems" />
                 <Tab label="Templates" />
                 <Tab label="Scheduler" />
+                <Tab label="Calendar" />
                 <Tab label="Data" />
                 <Tab label="Feedback" />
                 <Tab label="Automation" />
                 <Tab label="Communication" />
+                <Tab label="Insights" />
                 <Tab label="Analytics" />
                 <Tab label="Compare" />
               </Tabs>
@@ -339,26 +343,34 @@ export default function Dashboard() {
             )}
 
             {activeTab === 5 && (
-              <DataExportImport />
+              <AssessmentCalendar />
             )}
 
             {activeTab === 6 && (
-              <CandidateFeedback />
+              <DataExportImport />
             )}
 
             {activeTab === 7 && (
-              <AssessmentWorkflowAutomation />
+              <CandidateFeedback />
             )}
 
             {activeTab === 8 && (
-              <CandidateCommunicationCenter />
+              <AssessmentWorkflowAutomation />
             )}
 
             {activeTab === 9 && (
-              <AnalyticsDashboard />
+              <CandidateCommunicationCenter />
             )}
 
             {activeTab === 10 && (
+              <AssessmentPerformanceInsights />
+            )}
+
+            {activeTab === 11 && (
+              <AnalyticsDashboard />
+            )}
+
+            {activeTab === 12 && (
               <CandidateComparison />
             )}
           </Container>
