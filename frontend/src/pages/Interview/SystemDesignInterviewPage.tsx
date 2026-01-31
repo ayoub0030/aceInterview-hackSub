@@ -1,0 +1,359 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useConversation } from '@elevenlabs/react';
+import { toast } from 'sonner';
+import SystemDesignInterview from './SystemDesignInterview';
+import { ProctoringMonitor } from '../../../../components/ProctoringMonitor';
+import { orchestrateGrading } from '@/services/grading.service';
+import { supabase } from '@/lib/supabase';
+
+const INTERVIEW_DURATION_MS = 45 * 60 * 1000; // 45 minutes
+
+const SystemDesignInterviewPage: React.FC = () => {
+  const { interviewId } = useParams<{ interviewId: string }>();
+  const navigate = useNavigate();
+  const conversation = useConversation();
+  const timerIntervalRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const hasSubmittedRef = useRef(false); // Prevent duplicate submissions
+  const prevStatusRef = useRef<string>(conversation.status);
+
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [violations, setViolations] = useState<Array<{type: string, severity: string, timestamp: number}>>([]);
+  const [countdown, setCountdown] = useState<number | null>(3); // Start with 3
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isGrading, setIsGrading] = useState(false);
+
+  // Format time as MM:SS
+  const formatTime = (ms: number): string => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Start timer
+  const startTimer = () => {
+    if (timerIntervalRef.current) return; // Already running
+
+    console.log('[Timer] Starting');
+    startTimeRef.current = Date.now();
+    hasSubmittedRef.current = false;
+
+    timerIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - (startTimeRef.current || 0);
+      const remaining = Math.max(0, INTERVIEW_DURATION_MS - elapsed);
+      setTimeRemaining(remaining);
+
+      if (remaining === 0) {
+        stopTimer();
+        submitInterview();
+      }
+    }, 1000);
+  };
+
+  // Stop timer
+  const stopTimer = () => {
+    console.log('[Timer] Stopping');
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    setTimeRemaining(null);
+  };
+
+  // Handle proctoring violations
+  const handleViolation = (type: string, severity: string) => {
+    console.log(`[Proctoring] Violation detected: ${type} (${severity})`);
+    setViolations(prev => [...prev, { type, severity, timestamp: Date.now() }]);
+  };
+
+  // Submit interview to backend and trigger grading
+const submitInterview = async () => {
+  if (hasSubmittedRef.current || !interviewId) return;
+  hasSubmittedRef.current = true;
+
+  console.log('[Interview] Submitting:', interviewId);
+  const duration = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
+
+  // ✅ Update assessment status in Supabase — mark interview as ended
+  try {
+    const { error: updateError } = await supabase
+      .from('design_assessments')
+      .update({
+        ended_at: new Date().toISOString(), // mark when it ended
+        started_at: startTimeRef.current
+          ? new Date(startTimeRef.current).toISOString()
+          : null, // in case it wasn't set before
+        status: 'complete', // optional but useful for filtering
+        duration_ms: duration, // optional field if you want total duration
+      })
+      .eq('id', interviewId);
+
+    if (updateError) {
+      console.error('[Interview] Failed to update assessment:', updateError);
+    } else {
+      console.log('[Interview] Assessment marked as ended');
+    }
+  } catch (error) {
+    console.error('[Interview] Update error:', error);
+  }
+
+  // Start grading process
+  setIsGrading(true);
+  console.log('[Interview] Starting grading process...');
+
+  try {
+    // Get diagram JSON from Canvas
+    const getDiagramJSON = (window as any).getDiagramJSON;
+    const diagramJson = getDiagramJSON ? getDiagramJSON() : { nodes: [], edges: [] };
+
+    console.log('[Interview] Diagram captured:', {
+      nodeCount: diagramJson.nodes?.length || 0,
+      edgeCount: diagramJson.edges?.length || 0
+    });
+
+    // Orchestrate grading (fetches problem, transcript, calls edge function, saves results)
+    await orchestrateGrading(interviewId, conversationId, diagramJson);
+
+    console.log('[Interview] Grading completed successfully');
+  } catch (gradingError) {
+    console.error('[Interview] Grading failed:', gradingError);
+  } finally {
+    setIsGrading(false);
+    console.log('[Interview] Redirecting to finished page');
+    navigate('/interview/finished');
+  }
+};
+
+
+ // Handle conversation start/stop with microphone permissions
+const handleStartConversation = async () => {
+  // Check and request microphone access
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (error) {
+    console.error('[Microphone] Access denied:', error);
+    toast.error('Please enable microphone access to start the interview.');
+    return;
+  }
+
+  // Start the session with ElevenLabs agent
+  try {
+    const agentId = import.meta.env.VITE_ELEVEN_AGENT_ID || 'agent_5401k89w0ehgejy8z1bghfxrc5cm';
+    
+    console.log('[Conversation] Starting session with agent:', agentId);
+    
+    await conversation.startSession({
+      agentId: agentId,
+      connectionType: 'webrtc',
+    });
+
+    console.log('[Conversation] Started, conversation object:', conversation);
+
+    // ✅ Mark interview as started in Supabase
+    if (interviewId) {
+      const { error } = await supabase
+        .from('design_assessments')
+        .update({
+          started_at: new Date().toISOString(),
+          status: 'incomplete',
+        })
+        .eq('id', interviewId);
+
+      if (error) {
+        console.error('[Interview] Failed to mark as started:', error);
+      } else {
+        console.log('[Interview] Marked as started in database');
+      }
+    }
+  } catch (error: any) {
+    console.error('[Conversation] Failed to start session:', error);
+    const errorMsg = error?.message || 'Failed to start conversation';
+    toast.error(`Conversation Error: ${errorMsg}`);
+  }
+};
+
+
+  const handleStopConversation = async () => {
+    await conversation.endSession();
+  };
+
+  // Capture conversation ID when it becomes available
+  useEffect(() => {
+    // Use getId() method from ElevenLabs conversation hook
+    const convId = conversation.getId();
+    console.log('[Conversation] Checking for ID, found:', convId, 'current:', conversationId);
+    if (convId && convId !== conversationId) {
+      console.log('[Conversation] Captured conversation ID:', convId);
+      setConversationId(convId);
+    }
+  }, [conversation, conversationId]);
+
+  // Monitor conversation status to control timer
+  useEffect(() => {
+    // Capture timer state at the start, before any potential cleanup
+    const hasTimer = timerIntervalRef.current !== null;
+    const prevStatus = prevStatusRef.current;
+    const currentStatus = conversation.status;
+
+    const isSessionActive = currentStatus === 'connected' || currentStatus === 'connecting';
+    const wasSessionActive = prevStatus === 'connected' || prevStatus === 'connecting' || prevStatus === 'disconnecting';
+
+    // Session started (connected/connecting) - start timer
+    if (isSessionActive && !hasTimer) {
+      startTimer();
+    }
+
+    // Session ended (disconnecting/disconnected after being active) - stop timer and submit
+    if (
+      (currentStatus === 'disconnecting' || currentStatus === 'disconnected') &&
+      wasSessionActive &&
+      hasTimer &&
+      !hasSubmittedRef.current
+    ) {
+      stopTimer();
+      submitInterview();
+    }
+
+    // Update previous status
+    prevStatusRef.current = currentStatus;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation.status, interviewId]);
+
+  // Countdown timer on mount - auto start interview
+  useEffect(() => {
+    if (countdown === null || countdown < 1) return;
+
+    const countdownTimer = setTimeout(() => {
+      if (countdown === 1) {
+        // Countdown finished - start interview
+        setCountdown(null);
+        handleStartConversation();
+      } else {
+        // Continue countdown
+        setCountdown(countdown - 1);
+      }
+    }, 1000);
+
+    return () => clearTimeout(countdownTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown]);
+
+  // Cleanup timer on component unmount
+  useEffect(() => {
+    return () => {
+      stopTimer();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Log sendContextualUpdate availability
+  useEffect(() => {
+    if (conversation.status === 'connected') {
+      console.log('[Conversation] sendContextualUpdate available:', !!conversation.sendContextualUpdate);
+      if (!conversation.sendContextualUpdate) {
+        console.warn('[Conversation] WARNING: sendContextualUpdate is not available!');
+      }
+    }
+  }, [conversation.status, conversation.sendContextualUpdate]);
+
+  return (
+    <div className="relative h-screen">
+      {/* Countdown Overlay */}
+      {countdown !== null && (
+        <div className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-white text-2xl mb-8 font-semibold">Interview Starting In</h2>
+            <div className="text-white text-9xl font-bold animate-pulse">
+              {countdown}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Grading Overlay */}
+      {isGrading && (
+        <div className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center">
+          <div className="text-center">
+            <div className="mb-6">
+              <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+            <h2 className="text-white text-2xl mb-4 font-semibold">Grading Your Interview</h2>
+            <p className="text-white/70 text-sm max-w-md">
+              Please wait while we analyze your system design and conversation...
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Top right controls stack */}
+      <div className="fixed top-4 right-4 z-40 flex flex-col gap-3 items-end">
+        {/* Proctoring Monitor */}
+        {interviewId && (
+          <ProctoringMonitor
+            sessionId={interviewId}
+            assessmentId={interviewId}
+            onViolation={handleViolation}
+            showPreview={false}
+          />
+        )}
+
+        {/* Timer */}
+        <div className="bg-black text-white shadow-md rounded-2xl px-4 py-3">
+          <div className="flex items-center gap-3">
+            {timeRemaining !== null && (
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+            )}
+            <div className="text-right">
+              <div className="text-xs opacity-70">Time Remaining</div>
+              <div className={`text-xl font-mono font-bold ${
+                timeRemaining !== null && timeRemaining < 5 * 60 * 1000 ? 'text-red-400 animate-pulse' : ''
+              }`}>
+                {formatTime(timeRemaining !== null ? timeRemaining : INTERVIEW_DURATION_MS)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Interview Control Buttons */}
+        {conversation.status === 'disconnected' ? (
+          <button
+            onClick={handleStartConversation}
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-4 rounded-2xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 bg-white rounded-full" />
+              <span className="text-lg">Start Interview</span>
+            </div>
+          </button>
+        ) : (
+          <button
+            onClick={handleStopConversation}
+            disabled={conversation.status === 'disconnecting'}
+            className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-4 rounded-2xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 bg-white rounded-full animate-pulse" />
+              <span className="text-lg">End Interview</span>
+            </div>
+          </button>
+        )}
+
+        {/* Status indicator */}
+        {conversation.status !== 'disconnected' && (
+          <div className="bg-black/80 text-white text-sm px-4 py-2 rounded-xl text-center">
+            {conversation.isSpeaking ? 'AI is speaking...' : 'Listening...'}
+          </div>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div>
+        <SystemDesignInterview sendContextualUpdate={conversation.sendContextualUpdate} />
+      </div>
+    </div>
+  );
+};
+
+export default SystemDesignInterviewPage;
