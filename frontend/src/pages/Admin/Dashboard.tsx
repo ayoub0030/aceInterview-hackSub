@@ -19,6 +19,8 @@ import BulkOperations from "../../components/admin/BulkOperations";
 import TemplateManager from "../../components/admin/TemplateManager";
 import AssessmentScheduler from "../../components/admin/AssessmentScheduler";
 import DataExportImport from "../../components/admin/DataExportImport";
+import NotificationCenter from "../../components/admin/NotificationCenter";
+import { NotificationProvider } from "../../contexts/NotificationContext";
 import {
   DesignProblem,
   DesignAssessment,
@@ -146,136 +148,156 @@ export default function Dashboard() {
   const handleLogout = () => authService.logout();
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        background:
-          "linear-gradient(135deg, #1a0b14 0%, #0a0a0a 50%, #120520 100%)",
-        position: "relative",
-        overflow: "auto",
-        overscrollBehavior: "none",
-      }}
-    >
-      {/* bg */}
+    <NotificationProvider>
       <Box
         sx={{
-          position: "fixed",
-          inset: 0,
-          backgroundImage:
-            "radial-gradient(circle at 20% 50%, rgba(98,0,69,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(98,0,69,0.15) 0%, transparent 50%)",
-          zIndex: 0,
-          pointerEvents: "none",
+          minHeight: "100vh",
+          background:
+            "linear-gradient(135deg, #1a0b14 0%, #0a0a0a 50%, #120520 100%)",
+          position: "relative",
+          overflow: "auto",
+          overscrollBehavior: "none",
         }}
-      />
-
-      <Box sx={{ position: "relative", zIndex: 10 }}>
-        <AppBar
-          position="static"
-          elevation={0}
+      >
+        {/* bg */}
+        <Box
           sx={{
-            bgcolor: "rgba(0,0,0,0.4)",
-            backdropFilter: "blur(20px)",
-            borderBottom: "1px solid rgba(255,255,255,0.1)",
+            position: "fixed",
+            inset: 0,
+            backgroundImage:
+              "radial-gradient(circle at 20% 50%, rgba(98,0,69,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(98,0,69,0.15) 0%, transparent 50%)",
+            zIndex: 0,
+            pointerEvents: "none",
           }}
-        >
-          <Toolbar sx={{ py: 1 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                flexGrow: 1,
-                gap: 2,
-              }}
-            >
-              <img
-                src="/SystemaLogo.png"
-                alt="Systema Logo"
-                style={{ height: "45px", width: "auto" }}
-              />
-              <Box>
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: 600, letterSpacing: 0.5 }}
-                >
-                  Systema
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "rgba(255,255,255,0.6)" }}
-                >
-                  Dashboard
-                </Typography>
-              </Box>
-            </Box>
-            <Button
-              color="inherit"
-              onClick={handleLogout}
-              sx={{
-                borderRadius: 2,
-                px: 3,
-                border: "1px solid rgba(255,255,255,0.2)",
-                "&:hover": {
-                  bgcolor: "rgba(98,0,69,0.3)",
-                  borderColor: "rgba(98,0,69,0.5)",
-                },
-              }}
-            >
-              Logout
-            </Button>
-          </Toolbar>
-        </AppBar>
+        />
 
-        <Container maxWidth="xl" sx={{ mt: 5, mb: 6, px: 4 }}>
-          {/* Dashboard Tabs */}
-          <Box sx={{ borderBottom: 1, borderColor: 'rgba(98,0,69,0.3)', mb: 3 }}>
-            <Tabs
-              value={activeTab}
-              onChange={(_: any, newValue: number) => setActiveTab(newValue)}
-              textColor="inherit"
-              TabIndicatorProps={{ sx: { backgroundColor: 'rgba(98,0,69,1)' } }}
-              sx={{
-                '& .MuiTab-root': {
-                  color: 'rgba(255,255,255,0.7)',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  '&.Mui-selected': { color: 'white' },
-                },
-              }}
-            >
-              <Tab label="Overview" />
-              <Tab label="Assessments" />
-              <Tab label="Problems" />
-              <Tab label="Templates" />
-              <Tab label="Scheduler" />
-              <Tab label="Data" />
-              <Tab label="Analytics" />
-              <Tab label="Compare" />
-            </Tabs>
-          </Box>
-
-          {/* Tab Content */}
-          {activeTab === 0 && (
-            <Box
-              sx={{
-                display: "flex",
-                gap: 4,
-                flexDirection: { xs: "column", lg: "row" },
-              }}
-            >
-              {/* Problems */}
-              <Box sx={{ flex: 1 }}>
-                <Problems
-                  problems={sortedProblems}
-                  total={problems.length}
-                  sortBy={problemSortBy}
-                  setSortBy={setProblemSortBy}
-                  onSendProblem={sendAssessment}
-                  sendingId={sendingId}
+        <Box sx={{ position: "relative", zIndex: 10 }}>
+          <AppBar
+            position="static"
+            elevation={0}
+            sx={{
+              bgcolor: "rgba(0,0,0,0.4)",
+              backdropFilter: "blur(20px)",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <Toolbar sx={{ py: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  flexGrow: 1,
+                  gap: 2,
+                }}
+              >
+                <img
+                  src="/SystemaLogo.png"
+                  alt="Systema Logo"
+                  style={{ height: "45px", width: "auto" }}
                 />
+                <Box>
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: 600, letterSpacing: 0.5 }}
+                  >
+                    Systema
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "rgba(255,255,255,0.6)" }}
+                  >
+                    Dashboard
+                  </Typography>
+                </Box>
               </Box>
+              <Button
+                color="inherit"
+                onClick={handleLogout}
+                sx={{
+                  borderRadius: 2,
+                  px: 3,
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  "&:hover": {
+                    bgcolor: "rgba(98,0,69,0.3)",
+                    borderColor: "rgba(98,0,69,0.5)",
+                  },
+                }}
+              >
+                Logout
+              </Button>
+              <NotificationCenter />
+            </Toolbar>
+          </AppBar>
 
-              {/* Assessments */}
-              <Box sx={{ flex: 1 }}>
+          <Container maxWidth="xl" sx={{ mt: 5, mb: 6, px: 4 }}>
+            {/* Dashboard Tabs */}
+            <Box sx={{ borderBottom: 1, borderColor: 'rgba(98,0,69,0.3)', mb: 3 }}>
+              <Tabs
+                value={activeTab}
+                onChange={(_: any, newValue: number) => setActiveTab(newValue)}
+                textColor="inherit"
+                TabIndicatorProps={{ sx: { backgroundColor: 'rgba(98,0,69,1)' } }}
+                sx={{
+                  '& .MuiTab-root': {
+                    color: 'rgba(255,255,255,0.7)',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    '&.Mui-selected': { color: 'white' },
+                  },
+                }}
+              >
+                <Tab label="Overview" />
+                <Tab label="Assessments" />
+                <Tab label="Problems" />
+                <Tab label="Templates" />
+                <Tab label="Scheduler" />
+                <Tab label="Data" />
+                <Tab label="Analytics" />
+                <Tab label="Compare" />
+              </Tabs>
+            </Box>
+
+            {/* Tab Content */}
+            {activeTab === 0 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 4,
+                  flexDirection: { xs: "column", lg: "row" },
+                }}
+              >
+                {/* Problems */}
+                <Box sx={{ flex: 1 }}>
+                  <Problems
+                    problems={sortedProblems}
+                    total={problems.length}
+                    sortBy={problemSortBy}
+                    setSortBy={setProblemSortBy}
+                    onSendProblem={sendAssessment}
+                    sendingId={sendingId}
+                  />
+                </Box>
+
+                {/* Assessments */}
+                <Box sx={{ flex: 1 }}>
+                  <BulkOperations
+                    selectedAssessments={selectedAssessments}
+                    assessments={assessments}
+                    onSelectionChange={setSelectedAssessments}
+                    onRefresh={reloadAssessments}
+                  />
+                  <Assessments 
+                    completed={completed} 
+                    incomplete={incomplete} 
+                    selectedAssessments={selectedAssessments}
+                    onSelectionChange={setSelectedAssessments}
+                  />
+                </Box>
+              </Box>
+            )}
+
+            {activeTab === 1 && (
+              <>
                 <BulkOperations
                   selectedAssessments={selectedAssessments}
                   assessments={assessments}
@@ -288,59 +310,42 @@ export default function Dashboard() {
                   selectedAssessments={selectedAssessments}
                   onSelectionChange={setSelectedAssessments}
                 />
-              </Box>
-            </Box>
-          )}
+              </>
+            )}
 
-          {activeTab === 1 && (
-            <>
-              <BulkOperations
-                selectedAssessments={selectedAssessments}
-                assessments={assessments}
-                onSelectionChange={setSelectedAssessments}
-                onRefresh={reloadAssessments}
+            {activeTab === 2 && (
+              <Problems
+                problems={sortedProblems}
+                total={problems.length}
+                sortBy={problemSortBy}
+                setSortBy={setProblemSortBy}
+                onSendProblem={sendAssessment}
+                sendingId={sendingId}
               />
-              <Assessments 
-                completed={completed} 
-                incomplete={incomplete} 
-                selectedAssessments={selectedAssessments}
-                onSelectionChange={setSelectedAssessments}
-              />
-            </>
-          )}
+            )}
 
-          {activeTab === 2 && (
-            <Problems
-              problems={sortedProblems}
-              total={problems.length}
-              sortBy={problemSortBy}
-              setSortBy={setProblemSortBy}
-              onSendProblem={sendAssessment}
-              sendingId={sendingId}
-            />
-          )}
+            {activeTab === 3 && (
+              <TemplateManager />
+            )}
 
-          {activeTab === 3 && (
-            <TemplateManager />
-          )}
+            {activeTab === 4 && (
+              <AssessmentScheduler />
+            )}
 
-          {activeTab === 4 && (
-            <AssessmentScheduler />
-          )}
+            {activeTab === 5 && (
+              <DataExportImport />
+            )}
 
-          {activeTab === 5 && (
-            <DataExportImport />
-          )}
+            {activeTab === 6 && (
+              <AnalyticsDashboard />
+            )}
 
-          {activeTab === 6 && (
-            <AnalyticsDashboard />
-          )}
-
-          {activeTab === 7 && (
-            <CandidateComparison />
-          )}
-        </Container>
+            {activeTab === 7 && (
+              <CandidateComparison />
+            )}
+          </Container>
+        </Box>
       </Box>
-    </Box>
+    </NotificationProvider>
   );
 }
