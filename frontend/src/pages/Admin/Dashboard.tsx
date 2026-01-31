@@ -22,6 +22,7 @@ import DataExportImport from "../../components/admin/DataExportImport";
 import NotificationCenter from "../../components/admin/NotificationCenter";
 import CandidateFeedback from "../../components/admin/CandidateFeedback";
 import AssessmentWorkflowAutomation from "../../components/admin/AssessmentWorkflowAutomation";
+import CandidateCommunicationCenter from "../../components/admin/CandidateCommunicationCenter";
 import { NotificationProvider } from "../../contexts/NotificationContext";
 import {
   DesignProblem,
@@ -256,6 +257,7 @@ export default function Dashboard() {
                 <Tab label="Data" />
                 <Tab label="Feedback" />
                 <Tab label="Automation" />
+                <Tab label="Communication" />
                 <Tab label="Analytics" />
                 <Tab label="Compare" />
               </Tabs>
@@ -349,10 +351,14 @@ export default function Dashboard() {
             )}
 
             {activeTab === 8 && (
-              <AnalyticsDashboard />
+              <CandidateCommunicationCenter />
             )}
 
             {activeTab === 9 && (
+              <AnalyticsDashboard />
+            )}
+
+            {activeTab === 10 && (
               <CandidateComparison />
             )}
           </Container>
