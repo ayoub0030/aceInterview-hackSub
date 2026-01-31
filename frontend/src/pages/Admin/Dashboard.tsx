@@ -6,11 +6,15 @@ import {
   Container,
   Toolbar,
   Typography,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { toast } from "sonner";
 import { authService } from "../../services/auth.service";
 import Problems from "../../components/admin/Problems";
 import Assessments from "../../components/admin/Assessments";
+import AnalyticsDashboard from "../../components/admin/AnalyticsDashboard";
+import CandidateComparison from "../../components/admin/CandidateComparison";
 import {
   DesignProblem,
   DesignAssessment,
@@ -26,6 +30,7 @@ export default function Dashboard() {
   // UI
   const [problemSortBy, setProblemSortBy] = useState<"asc" | "desc">("asc");
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   // Disable overscroll on mount
   useEffect(() => {
@@ -132,8 +137,6 @@ export default function Dashboard() {
       setSendingId(null); // reset loading state
     }
   };
-  
-  
 
   const handleLogout = () => authService.logout();
 
@@ -218,30 +221,80 @@ export default function Dashboard() {
         </AppBar>
 
         <Container maxWidth="xl" sx={{ mt: 5, mb: 6, px: 4 }}>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 4,
-              flexDirection: { xs: "column", lg: "row" },
-            }}
-          >
-            {/* Problems */}
-            <Box sx={{ flex: 1 }}>
-              <Problems
-                problems={sortedProblems}
-                total={problems.length}
-                sortBy={problemSortBy}
-                setSortBy={setProblemSortBy}
-                onSendProblem={sendAssessment}
-                sendingId={sendingId}
-              />
-            </Box>
-
-            {/* Assessments */}
-            <Box sx={{ flex: 1 }}>
-              <Assessments completed={completed} incomplete={incomplete} />
-            </Box>
+          {/* Dashboard Tabs */}
+          <Box sx={{ borderBottom: 1, borderColor: 'rgba(98,0,69,0.3)', mb: 3 }}>
+            <Tabs
+              value={activeTab}
+              onChange={(_: any, newValue: number) => setActiveTab(newValue)}
+              textColor="inherit"
+              TabIndicatorProps={{ sx: { backgroundColor: 'rgba(98,0,69,1)' } }}
+              sx={{
+                '& .MuiTab-root': {
+                  color: 'rgba(255,255,255,0.7)',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  '&.Mui-selected': { color: 'white' },
+                },
+              }}
+            >
+              <Tab label="Overview" />
+              <Tab label="Assessments" />
+              <Tab label="Problems" />
+              <Tab label="Analytics" />
+              <Tab label="Compare" />
+            </Tabs>
           </Box>
+
+          {/* Tab Content */}
+          {activeTab === 0 && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 4,
+                flexDirection: { xs: "column", lg: "row" },
+              }}
+            >
+              {/* Problems */}
+              <Box sx={{ flex: 1 }}>
+                <Problems
+                  problems={sortedProblems}
+                  total={problems.length}
+                  sortBy={problemSortBy}
+                  setSortBy={setProblemSortBy}
+                  onSendProblem={sendAssessment}
+                  sendingId={sendingId}
+                />
+              </Box>
+
+              {/* Assessments */}
+              <Box sx={{ flex: 1 }}>
+                <Assessments completed={completed} incomplete={incomplete} />
+              </Box>
+            </Box>
+          )}
+
+          {activeTab === 1 && (
+            <Assessments completed={completed} incomplete={incomplete} />
+          )}
+
+          {activeTab === 2 && (
+            <Problems
+              problems={sortedProblems}
+              total={problems.length}
+              sortBy={problemSortBy}
+              setSortBy={setProblemSortBy}
+              onSendProblem={sendAssessment}
+              sendingId={sendingId}
+            />
+          )}
+
+          {activeTab === 3 && (
+            <AnalyticsDashboard />
+          )}
+
+          {activeTab === 4 && (
+            <CandidateComparison />
+          )}
         </Container>
       </Box>
     </Box>
