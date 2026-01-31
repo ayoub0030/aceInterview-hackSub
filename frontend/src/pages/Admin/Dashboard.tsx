@@ -25,6 +25,7 @@ import AssessmentWorkflowAutomation from "../../components/admin/AssessmentWorkf
 import CandidateCommunicationCenter from "../../components/admin/CandidateCommunicationCenter";
 import AssessmentCalendar from "../../components/admin/AssessmentCalendar";
 import AssessmentPerformanceInsights from "../../components/admin/AssessmentPerformanceInsights";
+import AssessmentAnalyticsDashboard from "../../components/admin/AssessmentAnalyticsDashboard";
 import { NotificationProvider } from "../../contexts/NotificationContext";
 import {
   DesignProblem,
@@ -262,6 +263,7 @@ export default function Dashboard() {
                 <Tab label="Automation" />
                 <Tab label="Communication" />
                 <Tab label="Insights" />
+                <Tab label="Analytics Pro" />
                 <Tab label="Analytics" />
                 <Tab label="Compare" />
               </Tabs>
@@ -363,7 +365,7 @@ export default function Dashboard() {
             )}
 
             {activeTab === 10 && (
-              <AssessmentPerformanceInsights />
+              <AssessmentAnalyticsDashboard />
             )}
 
             {activeTab === 11 && (
