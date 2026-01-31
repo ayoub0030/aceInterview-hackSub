@@ -17,6 +17,8 @@ import AnalyticsDashboard from "../../components/admin/AnalyticsDashboard";
 import CandidateComparison from "../../components/admin/CandidateComparison";
 import BulkOperations from "../../components/admin/BulkOperations";
 import TemplateManager from "../../components/admin/TemplateManager";
+import AssessmentScheduler from "../../components/admin/AssessmentScheduler";
+import DataExportImport from "../../components/admin/DataExportImport";
 import {
   DesignProblem,
   DesignAssessment,
@@ -244,6 +246,8 @@ export default function Dashboard() {
               <Tab label="Assessments" />
               <Tab label="Problems" />
               <Tab label="Templates" />
+              <Tab label="Scheduler" />
+              <Tab label="Data" />
               <Tab label="Analytics" />
               <Tab label="Compare" />
             </Tabs>
@@ -321,10 +325,18 @@ export default function Dashboard() {
           )}
 
           {activeTab === 4 && (
-            <AnalyticsDashboard />
+            <AssessmentScheduler />
           )}
 
           {activeTab === 5 && (
+            <DataExportImport />
+          )}
+
+          {activeTab === 6 && (
+            <AnalyticsDashboard />
+          )}
+
+          {activeTab === 7 && (
             <CandidateComparison />
           )}
         </Container>
