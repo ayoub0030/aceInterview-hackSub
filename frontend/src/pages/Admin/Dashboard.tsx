@@ -15,6 +15,8 @@ import Problems from "../../components/admin/Problems";
 import Assessments from "../../components/admin/Assessments";
 import AnalyticsDashboard from "../../components/admin/AnalyticsDashboard";
 import CandidateComparison from "../../components/admin/CandidateComparison";
+import BulkOperations from "../../components/admin/BulkOperations";
+import TemplateManager from "../../components/admin/TemplateManager";
 import {
   DesignProblem,
   DesignAssessment,
@@ -31,6 +33,7 @@ export default function Dashboard() {
   const [problemSortBy, setProblemSortBy] = useState<"asc" | "desc">("asc");
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const [selectedAssessments, setSelectedAssessments] = useState<string[]>([]);
 
   // Disable overscroll on mount
   useEffect(() => {
@@ -240,6 +243,7 @@ export default function Dashboard() {
               <Tab label="Overview" />
               <Tab label="Assessments" />
               <Tab label="Problems" />
+              <Tab label="Templates" />
               <Tab label="Analytics" />
               <Tab label="Compare" />
             </Tabs>
@@ -268,13 +272,37 @@ export default function Dashboard() {
 
               {/* Assessments */}
               <Box sx={{ flex: 1 }}>
-                <Assessments completed={completed} incomplete={incomplete} />
+                <BulkOperations
+                  selectedAssessments={selectedAssessments}
+                  assessments={assessments}
+                  onSelectionChange={setSelectedAssessments}
+                  onRefresh={reloadAssessments}
+                />
+                <Assessments 
+                  completed={completed} 
+                  incomplete={incomplete} 
+                  selectedAssessments={selectedAssessments}
+                  onSelectionChange={setSelectedAssessments}
+                />
               </Box>
             </Box>
           )}
 
           {activeTab === 1 && (
-            <Assessments completed={completed} incomplete={incomplete} />
+            <>
+              <BulkOperations
+                selectedAssessments={selectedAssessments}
+                assessments={assessments}
+                onSelectionChange={setSelectedAssessments}
+                onRefresh={reloadAssessments}
+              />
+              <Assessments 
+                completed={completed} 
+                incomplete={incomplete} 
+                selectedAssessments={selectedAssessments}
+                onSelectionChange={setSelectedAssessments}
+              />
+            </>
           )}
 
           {activeTab === 2 && (
@@ -289,10 +317,14 @@ export default function Dashboard() {
           )}
 
           {activeTab === 3 && (
-            <AnalyticsDashboard />
+            <TemplateManager />
           )}
 
           {activeTab === 4 && (
+            <AnalyticsDashboard />
+          )}
+
+          {activeTab === 5 && (
             <CandidateComparison />
           )}
         </Container>

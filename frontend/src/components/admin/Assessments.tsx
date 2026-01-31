@@ -37,18 +37,36 @@ import type { DesignAssessment } from '../../services/design.service';
 interface Props {
   completed: DesignAssessment[];
   incomplete: DesignAssessment[];
+  selectedAssessments?: string[];
+  onSelectionChange?: (selected: string[]) => void;
 }
 
-export default function Assessments({ completed, incomplete }: Props) {
+export default function Assessments({ 
+  completed, 
+  incomplete, 
+  selectedAssessments = [], 
+  onSelectionChange = () => {} 
+}: Props) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<'completed' | 'incomplete'>('completed');
   const [searchTerm, setSearchTerm] = useState('');
   const [scoreFilter, setScoreFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
-  const [selectedAssessments, setSelectedAssessments] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const total = (completed?.length ?? 0) + (incomplete?.length ?? 0);
+
+  // Handle checkbox selection
+  const handleSelectAssessment = (assessmentId: string, checked: boolean) => {
+    const newSelected = checked
+      ? [...selectedAssessments, assessmentId]
+      : selectedAssessments.filter(id => id !== assessmentId);
+    onSelectionChange(newSelected);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    onSelectionChange(checked ? rows.map(r => r.id) : []);
+  };
 
   // Filter and search logic
   const filteredRows = useMemo(() => {
