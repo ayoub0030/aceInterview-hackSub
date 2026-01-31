@@ -20,6 +20,8 @@ import TemplateManager from "../../components/admin/TemplateManager";
 import AssessmentScheduler from "../../components/admin/AssessmentScheduler";
 import DataExportImport from "../../components/admin/DataExportImport";
 import NotificationCenter from "../../components/admin/NotificationCenter";
+import CandidateFeedback from "../../components/admin/CandidateFeedback";
+import AssessmentWorkflowAutomation from "../../components/admin/AssessmentWorkflowAutomation";
 import { NotificationProvider } from "../../contexts/NotificationContext";
 import {
   DesignProblem,
@@ -252,6 +254,8 @@ export default function Dashboard() {
                 <Tab label="Templates" />
                 <Tab label="Scheduler" />
                 <Tab label="Data" />
+                <Tab label="Feedback" />
+                <Tab label="Automation" />
                 <Tab label="Analytics" />
                 <Tab label="Compare" />
               </Tabs>
@@ -337,10 +341,18 @@ export default function Dashboard() {
             )}
 
             {activeTab === 6 && (
-              <AnalyticsDashboard />
+              <CandidateFeedback />
             )}
 
             {activeTab === 7 && (
+              <AssessmentWorkflowAutomation />
+            )}
+
+            {activeTab === 8 && (
+              <AnalyticsDashboard />
+            )}
+
+            {activeTab === 9 && (
               <CandidateComparison />
             )}
           </Container>
