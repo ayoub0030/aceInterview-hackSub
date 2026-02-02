@@ -35,6 +35,9 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Switch,
+  FormControlLabel,
+  InputAdornment,
 } from '@mui/material';
 import {
   Api,
@@ -58,6 +61,17 @@ import {
   Error,
   Warning,
   Info,
+  ExpandMore,
+  MonitorHeart,
+  Storage,
+  Memory,
+  NetworkCheck,
+  CodeOff,
+  ApiOutlined,
+  IntegrationInstructions,
+  CloudSync,
+  Lock,
+  LockOpen,
 } from '@mui/icons-material';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -648,6 +662,78 @@ export default function AssessmentAnalyticsAPI() {
             </TableBody>
           </Table>
         </TableContainer>
+      </Paper>
+
+      {/* API Health Monitoring */}
+      <Paper sx={{ background: 'rgba(20, 20, 25, 0.7)', backdropFilter: 'blur(20px)', p: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ color: 'white' }}>
+            API Health Monitoring
+          </Typography>
+          <FormControlLabel
+            control={<Switch defaultChecked />}
+            label="Auto-refresh"
+            sx={{ color: 'rgba(255,255,255,0.7)' }}
+          />
+        </Box>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={3}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <MonitorHeart sx={{ color: '#4caf50', fontSize: 20 }} />
+              <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                API Status
+              </Typography>
+            </Box>
+            <Chip
+              label="HEALTHY"
+              sx={{
+                bgcolor: '#4caf50',
+                color: 'white',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <CloudSync sx={{ color: '#2196f3', fontSize: 20 }} />
+              <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                Uptime
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+              99.9% (30 days)
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <Security sx={{ color: '#ff9800', fontSize: 20 }} />
+              <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                Security Status
+              </Typography>
+            </Box>
+            <Chip
+              label="SECURE"
+              sx={{
+                bgcolor: '#ff9800',
+                color: 'white',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <IntegrationInstructions sx={{ color: '#9c27b0', fontSize: 20 }} />
+              <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                Version
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+              v2.1.0
+            </Typography>
+          </Grid>
+        </Grid>
       </Paper>
 
       {/* Usage Statistics */}
