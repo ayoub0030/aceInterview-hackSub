@@ -229,32 +229,82 @@ export default function Dashboard() {
                 onClick={handleLogout}
                 sx={{
                   borderRadius: 2,
-                  px: 3,
-                  border: "1px solid rgba(255,255,255,0.2)",
                   "&:hover": {
-                    bgcolor: "rgba(98,0,69,0.3)",
-            </Box>
-            <Button
-              color="inherit"
-              onClick={handleLogout}
-              sx={{
-                borderRadius: 2,
-                px: 3,
-                border: "1px solid rgba(255,255,255,0.2)",
-                "&:hover": {
-                  bgcolor: "rgba(98,0,69,0.3)",
-                  borderColor: "rgba(98,0,69,0.5)",
-                },
-              }}
-            >
-              Logout
-            </Button>
-            <NotificationCenter />
-          </Toolbar>
-        </AppBar>
+                    background: "linear-gradient(135deg, rgba(120,119,198,0.3) 0%, rgba(120,119,198,0.2) 100%)",
+                    borderColor: "rgba(120,119,198,0.6)",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 8px 25px rgba(120,119,198,0.3)",
+                  },
+                }}
+              >
+                Logout
+              </Button>
+              <NotificationCenter />
+            </Toolbar>
+          </AppBar>
 
-        <Container maxWidth="xl" sx={{ mt: 5, mb: 6, px: 4 }}>
-          {/* Dashboard Tabs */}
+          <Container maxWidth="xl" sx={{ mt: 5, mb: 6, px: 4 }}>
+            {/* Dashboard Tabs */}
+            <Box sx={{ 
+              borderBottom: 1, 
+              borderColor: 'rgba(120,119,198,0.3)', 
+              mb: 3,
+              bgcolor: 'rgba(15,12,41,0.4)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 2,
+              p: 1,
+            }}>
+              <Tabs
+                value={activeTab}
+                onChange={(_: any, newValue: number) => setActiveTab(newValue)}
+                textColor="inherit"
+                TabIndicatorProps={{ 
+                  sx: { 
+                    backgroundColor: 'rgba(120,119,198,0.8)',
+                    height: 3,
+                    borderRadius: 1,
+                  } 
+                }}
+                sx={{
+                  '& .MuiTab-root': {
+                    color: 'rgba(255,255,255,0.7)',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    minHeight: 48,
+                    px: 2,
+                    borderRadius: 1,
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      color: 'rgba(255,255,255,0.9)',
+                      bgcolor: 'rgba(120,119,198,0.1)',
+                    },
+                    '&.Mui-selected': { 
+                      color: 'white',
+                      bgcolor: 'rgba(120,119,198,0.2)',
+                    },
+                  },
+                }}
+              >
+                <Tab label="Overview" />
+                <Tab label="Assessments" />
+                <Tab label="Problems" />
+                <Tab label="Templates" />
+                <Tab label="Scheduler" />
+                <Tab label="Calendar" />
+                <Tab label="Data" />
+                <Tab label="Feedback" />
+                <Tab label="Automation" />
+                <Tab label="Communication" />
+                <Tab label="Insights" />
+                <Tab label="Analytics Pro" />
+                <Tab label="Analytics" />
+                <Tab label="Compare" />
+              </Tabs>
+            </Box>
+            {activeTab === 0 && (
+              <Box
+                sx={{
           <Box sx={{ 
             borderBottom: 1, 
             borderColor: 'rgba(120,119,198,0.3)', 
