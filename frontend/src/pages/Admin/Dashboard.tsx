@@ -159,21 +159,28 @@ export default function Dashboard() {
         sx={{
           minHeight: "100vh",
           background:
-            "linear-gradient(135deg, #1a0b14 0%, #0a0a0a 50%, #120520 100%)",
+            "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)",
           position: "relative",
           overflow: "auto",
           overscrollBehavior: "none",
         }}
       >
-        {/* bg */}
+        {/* Animated Background */}
         <Box
           sx={{
             position: "fixed",
             inset: 0,
             backgroundImage:
-              "radial-gradient(circle at 20% 50%, rgba(98,0,69,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(98,0,69,0.15) 0%, transparent 50%)",
+              "radial-gradient(circle at 20% 50%, rgba(120,119,198,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,119,198,0.25) 0%, transparent 50%), radial-gradient(circle at 40% 20%, rgba(255,219,118,0.2) 0%, transparent 50%)",
             zIndex: 0,
             pointerEvents: "none",
+            animation: "gradientShift 15s ease infinite",
+            "@keyframes gradientShift": {
+              "0%": { transform: "translate(0, 0) rotate(0deg)" },
+              "33%": { transform: "translate(-20px, -20px) rotate(120deg)" },
+              "66%": { transform: "translate(20px, -10px) rotate(240deg)" },
+              "100%": { transform: "translate(0, 0) rotate(360deg)" },
+            },
           }}
         />
 
@@ -182,9 +189,10 @@ export default function Dashboard() {
             position="static"
             elevation={0}
             sx={{
-              bgcolor: "rgba(0,0,0,0.4)",
-              backdropFilter: "blur(20px)",
-              borderBottom: "1px solid rgba(255,255,255,0.1)",
+              bgcolor: "rgba(15,12,41,0.8)",
+              backdropFilter: "blur(25px)",
+              borderBottom: "1px solid rgba(120,119,198,0.3)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
             }}
           >
             <Toolbar sx={{ py: 1 }}>
