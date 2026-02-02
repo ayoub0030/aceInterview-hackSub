@@ -110,6 +110,18 @@ interface APIUsage {
   }>;
 }
 
+interface APIKey {
+  id: string;
+  name: string;
+  key: string;
+  permissions: string[];
+  created_at: string;
+  expires_at: string;
+  last_used: string;
+  usage_count: number;
+  status: 'active' | 'expired' | 'revoked';
+}
+
 interface APIAnalytics {
   total_requests: number;
   total_endpoints: number;
@@ -139,6 +151,7 @@ export default function AssessmentAnalyticsAPI() {
   const [endpoints, setEndpoints] = useState<APIEndpoint[]>([]);
   const [usage, setUsage] = useState<APIUsage[]>([]);
   const [analytics, setAnalytics] = useState<APIAnalytics | null>(null);
+  const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEndpoint, setSelectedEndpoint] = useState<APIEndpoint | null>(null);
   const [apiDialogOpen, setApiDialogOpen] = useState(false);
@@ -732,6 +745,66 @@ export default function AssessmentAnalyticsAPI() {
             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
               v2.1.0
             </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* API Key Management */}
+      <Paper sx={{ background: 'rgba(20, 20, 25, 0.7)', backdropFilter: 'blur(20px)', p: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ color: 'white' }}>
+            API Key Management
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<Key />}
+            sx={{
+              bgcolor: 'rgba(98,0,69,0.8)',
+              '&:hover': { bgcolor: 'rgba(98,0,69,1)' },
+            }}
+          >
+            Generate New Key
+          </Button>
+        </Box>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <Box sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Key sx={{ color: '#4caf50', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                  Active Keys
+                </Typography>
+              </Box>
+              <Typography variant="h4" sx={{ color: 'white', fontSize: '1.5rem' }}>
+                3
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Box sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Lock sx={{ color: '#ff9800', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                  Expired Keys
+                </Typography>
+              </Box>
+              <Typography variant="h4" sx={{ color: 'white', fontSize: '1.5rem' }}>
+                1
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Box sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <LockOpen sx={{ color: '#f44336', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                  Revoked Keys
+                </Typography>
+              </Box>
+              <Typography variant="h4" sx={{ color: 'white', fontSize: '1.5rem' }}>
+                2
+              </Typography>
+            </Box>
           </Grid>
         </Grid>
       </Paper>
