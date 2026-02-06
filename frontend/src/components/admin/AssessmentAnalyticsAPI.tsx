@@ -38,6 +38,10 @@ import {
   Switch,
   FormControlLabel,
   InputAdornment,
+  Divider,
+  Avatar,
+  Stack,
+  CircularProgress,
 } from '@mui/material';
 import {
   Api,
@@ -72,6 +76,27 @@ import {
   CloudSync,
   Lock,
   LockOpen,
+  BarChart,
+  PieChart,
+  Timeline as TimelineIcon,
+  FilterList,
+  Search,
+  Schedule,
+  NotificationsActive,
+  Analytics,
+  Dashboard,
+  SecurityUpdate,
+  Update,
+  Delete,
+  Edit,
+  Add,
+  Remove,
+  MoreVert,
+  ArrowUpward,
+  ArrowDownward,
+  TrendingDown,
+  TrendingFlat,
+  AssessmentOutlined,
 } from '@mui/icons-material';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -675,6 +700,242 @@ export default function AssessmentAnalyticsAPI() {
             </TableBody>
           </Table>
         </TableContainer>
+      </Paper>
+
+      {/* Advanced Analytics Dashboard */}
+      <Paper sx={{ background: 'rgba(20, 20, 25, 0.7)', backdropFilter: 'blur(20px)', p: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ color: 'white' }}>
+            Advanced Analytics
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              startIcon={<FilterList />}
+              size="small"
+              sx={{ color: 'rgba(255,255,255,0.7)', borderColor: 'rgba(255,255,255,0.3)' }}
+            >
+              Filter
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<Schedule />}
+              size="small"
+              sx={{ color: 'rgba(255,255,255,0.7)', borderColor: 'rgba(255,255,255,0.3)' }}
+            >
+              Time Range
+            </Button>
+          </Stack>
+        </Box>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Box sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <BarChart sx={{ color: '#4caf50', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                  Response Time Distribution
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                  &lt;100ms
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={75}
+                  sx={{ flex: 1, height: 8, borderRadius: 4 }}
+                  color="success"
+                />
+                <Typography variant="body2" sx={{ color: '#4caf50' }}>
+                  75%
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                  100-500ms
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={20}
+                  sx={{ flex: 1, height: 8, borderRadius: 4 }}
+                  color="warning"
+                />
+                <Typography variant="body2" sx={{ color: '#ff9800' }}>
+                  20%
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                  &gt;500ms
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={5}
+                  sx={{ flex: 1, height: 8, borderRadius: 4 }}
+                  color="error"
+                />
+                <Typography variant="body2" sx={{ color: '#f44336' }}>
+                  5%
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Box sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <PieChart sx={{ color: '#2196f3', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                  Request Methods
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    GET
+                  </Typography>
+                  <Chip
+                    label="65%"
+                    size="small"
+                    sx={{ bgcolor: '#4caf50', color: 'white', fontSize: '0.7rem' }}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    POST
+                  </Typography>
+                  <Chip
+                    label="25%"
+                    size="small"
+                    sx={{ bgcolor: '#2196f3', color: 'white', fontSize: '0.7rem' }}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    PUT
+                  </Typography>
+                  <Chip
+                    label="7%"
+                    size="small"
+                    sx={{ bgcolor: '#ff9800', color: 'white', fontSize: '0.7rem' }}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    DELETE
+                  </Typography>
+                  <Chip
+                    label="3%"
+                    size="small"
+                    sx={{ bgcolor: '#f44336', color: 'white', fontSize: '0.7rem' }}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Box sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <TimelineIcon sx={{ color: '#9c27b0', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                  Peak Usage Hours
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    09:00 - 12:00
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ArrowUpward sx={{ color: '#4caf50', fontSize: 16 }} />
+                    <Typography variant="body2" sx={{ color: '#4caf50' }}>
+                      High
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    14:00 - 18:00
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TrendingUp sx={{ color: '#ff9800', fontSize: 16 }} />
+                    <Typography variant="body2" sx={{ color: '#ff9800' }}>
+                      Medium
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    22:00 - 06:00
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TrendingDown sx={{ color: '#f44336', fontSize: 16 }} />
+                    <Typography variant="body2" sx={{ color: '#f44336' }}>
+                      Low
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* Real-time Activity Feed */}
+      <Paper sx={{ background: 'rgba(20, 20, 25, 0.7)', backdropFilter: 'blur(20px)', p: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ color: 'white' }}>
+            Real-time Activity Feed
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CircularProgress size={16} sx={{ color: '#4caf50' }} />
+            <Typography variant="body2" sx={{ color: '#4caf50' }}>
+              Live
+            </Typography>
+          </Box>
+        </Box>
+        <Box sx={{ maxHeight: 200, overflow: 'auto' }}>
+          <Stack spacing={1}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1, bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 1 }}>
+              <Avatar sx={{ width: 32, height: 32, bgcolor: '#4caf50' }}>
+                <CheckCircle sx={{ fontSize: 18 }} />
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="body2" sx={{ color: 'white' }}>
+                  GET /api/assessments - Success
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                  2 seconds ago • 127.0.0.1 • 45ms
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1, bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 1 }}>
+              <Avatar sx={{ width: 32, height: 32, bgcolor: '#ff9800' }}>
+                <Warning sx={{ fontSize: 18 }} />
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="body2" sx={{ color: 'white' }}>
+                  POST /api/users - Rate Limited
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                  5 seconds ago • 192.168.1.1 • 429
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1, bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 1 }}>
+              <Avatar sx={{ width: 32, height: 32, bgcolor: '#f44336' }}>
+                <Error sx={{ fontSize: 18 }} />
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="body2" sx={{ color: 'white' }}>
+                  DELETE /api/sessions - Unauthorized
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                  8 seconds ago • 10.0.0.1 • 401
+                </Typography>
+              </Box>
+            </Box>
+          </Stack>
+        </Box>
       </Paper>
 
       {/* API Health Monitoring */}
