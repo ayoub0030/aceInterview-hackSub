@@ -1,6 +1,15 @@
 # AceUp Interview Platform
 
-A comprehensive technical e and feedback
+A comprehensive technical interview platform with AI-powered proctoring, automated grading, and multiple assessment types for efficient technical hiring.
+
+## 🚀 Features
+
+### Current Features
+
+- **AI-Powered System Design Interviews**
+  - Interactive system design whiteboard
+  - Real-time collaboration
+  - AI-assisted guidance and feedback
   - Automated grading on 5 key pillars
 
 - **AI Proctoring**
