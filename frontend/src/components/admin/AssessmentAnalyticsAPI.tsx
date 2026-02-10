@@ -135,6 +135,15 @@ interface APIUsage {
   }>;
 }
 
+interface Notification {
+  id: string;
+  type: 'success' | 'warning' | 'error' | 'info';
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+}
+
 interface APIKey {
   id: string;
   name: string;
@@ -177,6 +186,7 @@ export default function AssessmentAnalyticsAPI() {
   const [usage, setUsage] = useState<APIUsage[]>([]);
   const [analytics, setAnalytics] = useState<APIAnalytics | null>(null);
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEndpoint, setSelectedEndpoint] = useState<APIEndpoint | null>(null);
   const [apiDialogOpen, setApiDialogOpen] = useState(false);
@@ -878,6 +888,77 @@ export default function AssessmentAnalyticsAPI() {
             </Box>
           </Grid>
         </Grid>
+      </Paper>
+
+      {/* Notification System */}
+      <Paper sx={{ background: 'rgba(20, 20, 25, 0.7)', backdropFilter: 'blur(20px)', p: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ color: 'white' }}>
+            System Notifications
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Badge badgeContent={3} color="error">
+              <NotificationsActive sx={{ color: 'rgba(255,255,255,0.7)' }} />
+            </Badge>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{ color: 'rgba(255,255,255,0.7)', borderColor: 'rgba(255,255,255,0.3)' }}
+            >
+              Mark All Read
+            </Button>
+          </Box>
+        </Box>
+        <Stack spacing={2}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, bgcolor: 'rgba(76,175,80,0.1)', borderRadius: 1, border: '1px solid rgba(76,175,80,0.3)' }}>
+            <CheckCircle sx={{ color: '#4caf50', fontSize: 20 }} />
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                API Health Check Passed
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                All endpoints responding normally • 2 minutes ago
+              </Typography>
+            </Box>
+            <Chip
+              label="Success"
+              size="small"
+              sx={{ bgcolor: '#4caf50', color: 'white', fontSize: '0.7rem' }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, bgcolor: 'rgba(255,152,0,0.1)', borderRadius: 1, border: '1px solid rgba(255,152,0,0.3)' }}>
+            <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                High Memory Usage Detected
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                Memory usage at 85% • 15 minutes ago
+              </Typography>
+            </Box>
+            <Chip
+              label="Warning"
+              size="small"
+              sx={{ bgcolor: '#ff9800', color: 'white', fontSize: '0.7rem' }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, bgcolor: 'rgba(33,150,243,0.1)', borderRadius: 1, border: '1px solid rgba(33,150,243,0.3)' }}>
+            <Info sx={{ color: '#2196f3', fontSize: 20 }} />
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                New API Key Generated
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                Key created for analytics endpoint • 1 hour ago
+              </Typography>
+            </Box>
+            <Chip
+              label="Info"
+              size="small"
+              sx={{ bgcolor: '#2196f3', color: 'white', fontSize: '0.7rem' }}
+            />
+          </Box>
+        </Stack>
       </Paper>
 
       {/* Real-time Activity Feed */}
